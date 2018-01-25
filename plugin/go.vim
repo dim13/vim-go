@@ -29,7 +29,7 @@ endif
 
 " these packages are used by vim-go and can be automatically installed if
 " needed by the user with GoInstallBinaries
-let s:packages = {
+let g:go_packages = {
       \ 'asmfmt':        ['github.com/klauspost/asmfmt/cmd/asmfmt'],
       \ 'errcheck':      ['github.com/kisielk/errcheck'],
       \ 'fillstruct':    ['github.com/davidrjenni/reftools/cmd/fillstruct'],
@@ -46,6 +46,7 @@ let s:packages = {
       \ 'impl':          ['github.com/josharian/impl'],
       \ 'keyify':        ['github.com/dominikh/go-tools/cmd/keyify'],
       \ 'motion':        ['github.com/fatih/motion'],
+      \ 'dep':           ['github.com/golang/dep/cmd/dep'],
 \ }
 
 " These commands are available on any filetypes
@@ -54,12 +55,12 @@ command! -nargs=* -complete=customlist,s:complete GoUpdateBinaries  call s:GoIns
 command! -nargs=? -complete=dir GoPath call go#path#GoPath(<f-args>)
 
 fun! s:complete(lead, cmdline, cursor)
-  return filter(keys(s:packages), 'strpart(v:val, 0, len(a:lead)) == a:lead')
+  return filter(keys(g:go_packages), 'strpart(v:val, 0, len(a:lead)) == a:lead')
 endfun
 
-" GoInstallBinaries downloads and installs binaries defined in s:packages to
+" GoInstallBinaries downloads and installs binaries defined in g:go_packages to
 " $GOBIN or $GOPATH/bin. GoInstallBinaries will update already installed
-" binaries only if updateBinaries = 1. By default, all packages in s:packages
+" binaries only if updateBinaries = 1. By default, all packages in g:go_packages
 " will be installed, but the set can be limited by passing the desired
 " packages in the unnamed arguments.
 function! s:GoInstallBinaries(updateBinaries, ...)
@@ -112,7 +113,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
   let l:packages = {}
   if a:0 > 0
     for l:bin in a:000
-      let l:pkg = get(s:packages, l:bin, [])
+      let l:pkg = get(g:go_packages, l:bin, [])
       if len(l:pkg) == 0
         call go#util#EchoError('unknown binary: ' . l:bin)
         return
@@ -120,7 +121,7 @@ function! s:GoInstallBinaries(updateBinaries, ...)
       let l:packages[l:bin] = l:pkg
     endfor
   else
-    let l:packages = s:packages
+    let l:packages = g:go_packages
   endif
 
   let l:platform = ''
